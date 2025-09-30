@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import connectDB from './config/db.js';
+import securityMiddleware from './middleware/securityMiddleware.js';
 
 // Load environment variables
 dotenv.config();
@@ -9,13 +10,21 @@ dotenv.config();
 // Create Express app
 const app = express();
 
+// Apply security middleware
+securityMiddleware(app);
+
+// Import response handler
+import { responseHandler } from './config/responseHandler.js';
+
 // Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(responseHandler);
 
 // Import routes
 import usersRouter from './routes/users.js';
+import productRouter from './routes/product.routes.js';
 
 // Basic route
 app.get('/', (req, res) => {
@@ -24,6 +33,7 @@ app.get('/', (req, res) => {
 
 // Routes
 app.use('/api/users', usersRouter);
+app.use('/api/products', productRouter);
 
 // Import error middleware
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
